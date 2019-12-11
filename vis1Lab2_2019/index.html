@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vis1 InfoVis Lab Exercise</title>
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <!-- include d3 -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!-- include jQueryUI -->
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- include Vis1 script -->
+    <script src="vis1.js"></script>
+
+</head>
+
+<body onload="init()">
+
+
+<h1>Vis1 d3 Exercise</h1>
+
+<div class="instructions">TODOs:
+<ul>
+    <li>Parse data and dimensions (i.e., column headers)</li>
+</ul>
+</div>
+
+<!-- data selector -->
+<p>Select your data here: <input id="upload" type="file"></p>
+
+
+<!-- parallel coordinates -->
+<h2>Parallel Coordinates</h2>
+<div class="instructions">TODOs:
+    <ul>
+        <li>Label axes with parsed dimensions</li>
+        <li>Scale axes to extents of dimensions</li>
+        <li>Render the poly lines</li>
+        <li>Display the name attribute on mouseover</li>
+        <li>Implement brushing+linking between parallel coordinates and scatterplot</li>
+    </ul>
+</div>
+<div class="optional">There are many possibilities to play around with parallel coordinates:
+    <ul>
+        <li>Implement "true" brushing (i.e., group selections) </li>
+        <li>Even more fancy brushing, like angular brushes</li>
+        <li>Play around with the rendering style, e.g., using transparencies or splines instead of straight lines</li>
+        <li>Extremely advanced: <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1467-8659.2008.01239.x">illustrative parallel coordinates</a></li>
+    </ul>
+</div>
+<div id="pc"></div>
+
+<!-- menu -->
+<h2>Scatterplot</h2>
+<p>Select dimensions to be displayed here: </p>
+<div id="menu">
+
+    <form action="#">
+
+        <fieldset>
+            <label for="scatterX">x axis: </label>
+            <select name="scatterX" id="scatterX">
+            </select>
+            <label for="scatterY">y axis: </label>
+            <select name="scatterY" id="scatterY">
+            </select>
+            <br/>
+            <label for="color">color: </label>
+            <select name="color" id="color">
+            </select>
+            <label for="size">size: </label>
+            <select name="size" id="size">
+            </select>
+        </fieldset>
+
+    </form>
+
+</div>
+
+<!-- scatterplot -->
+<div class="instructions">TODOs:
+    <ul>
+        <li>Scale axes to extents of dimensions selected in the menu</li>
+        <li>Render dots at correct positions</li>
+        <li>Map selected color dimension to a color scale</li>
+        <li>Size dots according to chosen size dimension</li>
+        <li>Make transitions animated</li>
+        <li>Display the name attribute on mouseover</li>
+    </ul>
+</div>
+<div class="optional">Possibilities to play around with the scatterplot:
+    <ul>
+        <li>Try different color schemes, e.g., by <a href="http://colorbrewer2.org">colorbrewer</a></li>
+        <li>Play around with effects like transparencies, shadows</li>
+    </ul>
+</div>
+<div id="sp"></div>
+
+<!-- credits -->
+<div id="credits">
+    Created by <div class="instructions">TODO: enter your name here</div>
+    bbased on Vis1 example by <a href="http://www.cg.tuwien.ac.at">Institute of Visual Computing and Human-Centered Technology - Computer Graphics Group - TU Wien</a>.
+</div>
+
+
+
+</body>
+</html>
