@@ -90,11 +90,15 @@ function initVis(_data){
     // parallel coordinates axes
     gPC.append("g")
         .attr("class", "axis")
-        .call(d3.axisLeft(y)) // TODO: call axis scale for current dimension*
-        .append("text")
-        .style("text-anchor", "middle")
-        .attr("y", margin.top / 2)
-        .text("all the same :("); // TODO: get domain name from data
+        .each(function(d, i){
+            d3.select(this)
+                .call(d3.axisLeft(y)) // TODO: call axis scale for current dimension*
+                .append("text")
+                .style("text-anchor", "middle")
+                .attr("y", margin.top / 2)
+                .text(d => dimensions[i]); // TODO: get domain name from data
+        })
+
 
     // *HINT: to make a call for each bound data item, use .each!
     // example: http://bl.ocks.org/milroc/4254604
