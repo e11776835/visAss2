@@ -1,7 +1,7 @@
 var xAxisSP, yAxisSP, xAxisLabelSP, yAxisLabelSP;
 
 // TODO: parse dimensions (i.e., attributes) from input file*
-var dimensions = ["dimension 1", "dimension 2", "dimension 3", "dimension 4", "dimension 5", "dimension 6"];
+var dimensions = ["dimension 1", "dimension 2", "dimension 3", "dimension 4", "dimension 5", "dimension 6", "Mario"];
 //*HINT: the first dimension is often a label; you can simply remove the first dimension with
 // dimensions.splice(0, 1);
 
@@ -12,6 +12,8 @@ var channels = ["scatterX", "scatterY", "color", "size"];
 var margin, widthPC, widthSP, height;
 // svg containers
 var svgPC, svgSP;
+
+var values = [];
 
 function init() {
     // define size of plots
@@ -43,10 +45,14 @@ function init() {
             var reader = new FileReader();
             reader.onloadend = function () {
                 console.log("data loaded: ");
-                console.log(reader.result);
+                //console.log(reader.result);
+                var loadedData = reader.result;
+
 
                 // TODO: parse reader.result data and call initVis with the parsed data!
-                initVis(null);
+                values = d3.csvParse(loadedData);
+                console.log(values);
+                initVis(values);
             };
             reader.readAsBinaryString(fileInput.files[0]);
         };
@@ -56,6 +62,9 @@ function init() {
 function initVis(_data){
 
     // TODO: parse dimensions (i.e., attributes) from input file
+    dimensions = Object.keys(_data[0]);
+    dimensions.splice(0,1);
+    console.log(dimensions);
 
     // x scaling for parallel coordinates
     var xPC = d3.scalePoint()
@@ -85,7 +94,7 @@ function initVis(_data){
         .append("text")
         .style("text-anchor", "middle")
         .attr("y", margin.top / 2)
-        .text("domain name"); // TODO: get domain name from data
+        .text("all the same :("); // TODO: get domain name from data
 
     // *HINT: to make a call for each bound data item, use .each!
     // example: http://bl.ocks.org/milroc/4254604
