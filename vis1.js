@@ -14,6 +14,7 @@ var margin, widthPC, widthSP, height;
 var svgPC, svgSP;
 
 var values = [];
+var y = {};
 
 function init() {
     // define size of plots
@@ -73,10 +74,27 @@ function initVis(_data){
 
     // y scalings
     // TODO: set y domain for each dimension
-    var y = d3.scaleLinear()
-        .range([height - margin.bottom - margin.top, margin.top]);
+    for(i in dimensions){
+        var name = dimensions[i];
+        y[name] = d3.scaleLinear()
+            .domain(d3.extent(_data, function(d) { return +d[name]; }))
+            .range([height - margin.bottom - margin.top, margin.top]);
+
+    }
 
     // TODO: render parallel coordinates polylines
+    function path(d){
+        return d3.line()(dimensions.map(function(p) { return [xPC(p), y[p](d[p])];}));
+    }
+
+    svgPC
+        .selectAll(".path")
+        .data(_data)
+        .enter().append("path")
+        .attr("d", path)
+        .style("fill", "none")
+        .style("stroke", "gray")
+        .style("opacity", 0.5)
 
     // parallel coordinates axes container
     var gPC = svgPC.selectAll(".dimension")
@@ -92,7 +110,7 @@ function initVis(_data){
         .attr("class", "axis")
         .each(function(d, i){
             d3.select(this)
-                .call(d3.axisLeft(y)) // TODO: call axis scale for current dimension*
+                .call(d3.axisLeft().scale(y[d])) // TODO: call axis scale for current dimension*
                 .append("text")
                 .style("text-anchor", "middle")
                 .attr("y", margin.top / 2)
@@ -112,7 +130,8 @@ function initVis(_data){
     yAxisSP = svgSP.append("g")
         .attr("class", "axis")
         .attr("transform", "translate(" + margin.left + ")")
-        .call(d3.axisLeft(y));
+        .call(d3.axisLeft().scale(y[d]));
+
 
     yAxisLabelSP = yAxisSP.append("text")
         .style("text-anchor", "middle")
