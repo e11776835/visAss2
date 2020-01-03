@@ -150,12 +150,12 @@ function initVis(_data){
     xAxisSP = svgSP.append("g")
         .attr("class", "axis")
         .attr("transform", "translate(0, " + (height - margin.bottom - margin.top) + ")")
-        .call(d3.axisBottom().scale(xSP[_data.columns[1]]));
+        .call(d3.axisBottom().scale(xSP[_data.columns[3]]));
 
     xAxisLabelSP = xAxisSP.append("text")
         .style("text-anchor", "middle")
         .attr("x", widthSP - margin.right)
-        .text(_data.columns[1]);
+        .text(_data.columns[3]);
 
     // init menu for the four visual channels
     channels.forEach(function(c){
@@ -185,6 +185,25 @@ function renderSP(){
     // TODO: re-render axes
 
     // TODO: render dots
+    var ycolumn = values.columns[1];
+    var xcolumn = values.columns[3];
+    var xname = dimensions[2];
+    var yname = dimensions[0];
+    var xValue = d => d[xcolumn];
+    var yValue = d => d[ycolumn];
+    var xScale = xSP[xname];
+    var yScale = y[yname];
+
+    svgSP.selectAll('circle').data(values)
+        .enter().append('circle')
+            .attr('cy', d => yScale(yValue(d)))
+            .attr('cx', d => xScale(xValue(d)))
+            .attr('r', 10)
+            .attr('fill', 'red')
+            .attr('opacity', 0.4);
+
+
+
 }
 
 // init scatterplot select menu
