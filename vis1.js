@@ -1,7 +1,7 @@
 var xAxisSP, yAxisSP, xAxisLabelSP, yAxisLabelSP;
 
 // TODO: parse dimensions (i.e., attributes) from input file*
-var dimensions = ["dimension 1", "dimension 2", "dimension 3", "dimension 4", "dimension 5", "dimension 6", "Mario"];
+var dimensions = ["dimension 1", "dimension 2", "dimension 3", "dimension 4", "dimension 5", "dimension 6"];
 //*HINT: the first dimension is often a label; you can simply remove the first dimension with
 // dimensions.splice(0, 1);
 
@@ -15,6 +15,7 @@ var svgPC, svgSP;
 
 var values = [];
 var y = {};
+var xSP = {};
 
 function init() {
     // define size of plots
@@ -94,7 +95,7 @@ function initVis(_data){
         .attr("d", path)
         .style("fill", "none")
         .style("stroke", "gray")
-        .style("opacity", 0.5)
+        .style("opacity", 0.5);
 
     // parallel coordinates axes container
     var gPC = svgPC.selectAll(".dimension")
@@ -115,7 +116,7 @@ function initVis(_data){
                 .style("text-anchor", "middle")
                 .attr("y", margin.top / 2)
                 .text(d => dimensions[i]); // TODO: get domain name from data
-        })
+        });
 
 
     // *HINT: to make a call for each bound data item, use .each!
@@ -123,30 +124,38 @@ function initVis(_data){
 
     // x scalings for scatter plot
     // TODO: set x domain for each dimension
-    var xSP = d3.scaleLinear()
-        .range([margin.left, widthSP - margin.left - margin.right]);
+
+    for(i in dimensions) {
+        var name = dimensions[i];
+        xSP[name] = d3.scaleLinear()
+            .domain(d3.extent(_data, function (d) {
+                return +d[name];
+            }))
+            .range([margin.left, widthSP - margin.left - margin.right]);
+    }
+
 
     // scatterplot axes
     yAxisSP = svgSP.append("g")
         .attr("class", "axis")
         .attr("transform", "translate(" + margin.left + ")")
-        .call(d3.axisLeft().scale(y[d]));
+        .call(d3.axisLeft().scale(y[_data.columns[1]]));
 
 
     yAxisLabelSP = yAxisSP.append("text")
         .style("text-anchor", "middle")
         .attr("y", margin.top / 2)
-        .text("x");
+        .text(_data.columns[1]);
 
     xAxisSP = svgSP.append("g")
         .attr("class", "axis")
         .attr("transform", "translate(0, " + (height - margin.bottom - margin.top) + ")")
-        .call(d3.axisBottom(xSP));
+        .call(d3.axisBottom().scale(xSP[_data.columns[1]]));
 
     xAxisLabelSP = xAxisSP.append("text")
         .style("text-anchor", "middle")
         .attr("x", widthSP - margin.right)
-        .text("y");
+        .text(_data.columns[1]);
 
     // init menu for the four visual channels
     channels.forEach(function(c){
