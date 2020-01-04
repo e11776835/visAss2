@@ -84,6 +84,29 @@ function initVis(_data){
     }
 
     // TODO: render parallel coordinates polylines
+
+    var highlight = function (d){
+        var nameColumn = values.columns[0];
+        var selected_item = d[nameColumn];
+
+        d3.selectAll(".line")
+            .transition().duration(200)
+            .style('stroke', 'lightgrey')
+            .style('opacity', 0.2);
+
+        d3.selectAll('.' + selected_item)
+            .transition().duration(200)
+            .style('stroke', 'steelblue')
+            .style('opacity', 1.0);
+    };
+
+    var unhighlight = function(d){
+        d3.selectAll(".line")
+            .transition().duration(200)
+            .style('stroke', 'gray')
+            .style('opacity', 0.5);
+    }
+
     function path(d){
         return d3.line()(dimensions.map(function(p) { return [xPC(p), y[p](d[p])];}));
     }
@@ -92,10 +115,16 @@ function initVis(_data){
         .selectAll(".path")
         .data(_data)
         .enter().append("path")
+        .attr("class", function (d) {
+            var nameColumn = values.columns[0];
+            return "line " + d[nameColumn]
+        })
         .attr("d", path)
         .style("fill", "none")
         .style("stroke", "gray")
-        .style("opacity", 0.5);
+        .style("opacity", 0.5)
+        .on("mouseover", highlight)
+        .on("mouseout",unhighlight);
 
     // parallel coordinates axes container
     var gPC = svgPC.selectAll(".dimension")
