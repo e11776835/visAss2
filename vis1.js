@@ -85,22 +85,29 @@ function initVis(_data){
 
     // TODO: render parallel coordinates polylines
 
-    var highlight = function (d){
+       var highlight = function (d){
         var nameColumn = values.columns[0];
         var selected_item = d[nameColumn];
+
+        infoText.text(selected_item);
+        infoText.style('visibility', 'visible')
+        info.style('visibility', 'visible');
+
 
         d3.selectAll(".line")
             .transition().duration(200)
             .style('stroke', 'lightgrey')
             .style('opacity', 0.2);
 
-        d3.selectAll('.' + selected_item)
+        d3.selectAll(`.${selected_item}`)
             .transition().duration(200)
             .style('stroke', 'steelblue')
             .style('opacity', 1.0);
     };
 
     var unhighlight = function(d){
+        info.style('visibility', 'hidden');
+        infoText.style('visibility', 'hidden');
         d3.selectAll(".line")
             .transition().duration(200)
             .style('stroke', 'gray')
@@ -146,6 +153,26 @@ function initVis(_data){
                 .attr("y", margin.top / 2)
                 .text(d => dimensions[i]); // TODO: get domain name from data
         });
+
+    var info = svgPC.append('rect')
+        .attr('x', 780)
+        .attr('width', 120)
+        .attr('height', 40)
+        .attr('fill', 'lightgrey')
+        .attr('rx', 15)
+        .attr('ry', 15)
+        .style("opacity", 0.8)
+        .style("visibility", "hidden");
+
+
+    var infoText = svgPC.append('text')
+        .attr('x', 840)
+        .attr('y', 25)
+        .attr("fill", "black")
+        .style('text-anchor', 'middle')
+        .style("visibility", "hidden")
+        .style('font-size', 12)
+        .text("name");
 
 
     // *HINT: to make a call for each bound data item, use .each!
