@@ -18,6 +18,8 @@ var y = {};
 var xSP = {};
 var ycolumn;
 var xcolumn;
+var color;
+var size;
 
 function init() {
     // define size of plots
@@ -58,7 +60,7 @@ function init() {
                 console.log(values);
 
                 ycolumn = values.columns[1];
-                xcolumn = values.columns[3];
+                xcolumn = values.columns[1];
 
                 initVis(values);
             };
@@ -89,6 +91,27 @@ function initVis(_data){
 
     }
 
+    var infoBox = svgPC.append('rect')
+        .attr('x', 780)
+        .attr('width', 120)
+        .attr('height', 40)
+        .attr('fill', 'lightgrey')
+        .attr('rx', 15)
+        .attr('ry', 15)
+        .style("opacity", 0.8)
+        .style("visibility", "hidden");
+
+
+
+    var infoText = svgPC.append('text')
+        .attr('x', 840)
+        .attr('y', 25)
+        .attr("fill", "black")
+        .style('text-anchor', 'middle')
+        .style("visibility", "hidden")
+        .style('font-size', 12)
+        .text("name");
+
     // TODO: render parallel coordinates polylines
 
        var highlight = function (d){
@@ -97,7 +120,7 @@ function initVis(_data){
 
         infoText.text(selected_item);
         infoText.style('visibility', 'visible')
-        info.style('visibility', 'visible');
+        infoBox.style('visibility', 'visible');
 
 
         d3.selectAll(".line")
@@ -105,14 +128,14 @@ function initVis(_data){
             .style('stroke', 'lightgrey')
             .style('opacity', 0.2);
 
-        d3.selectAll(`.${selected_item}`)
+        d3.select(this)
             .transition().duration(200)
             .style('stroke', 'steelblue')
             .style('opacity', 1.0);
     };
 
     var unhighlight = function(d){
-        info.style('visibility', 'hidden');
+        infoBox.style('visibility', 'hidden');
         infoText.style('visibility', 'hidden');
         d3.selectAll(".line")
             .transition().duration(200)
@@ -160,25 +183,7 @@ function initVis(_data){
                 .text(d => dimensions[i]); // TODO: get domain name from data
         });
 
-    var info = svgPC.append('rect')
-        .attr('x', 780)
-        .attr('width', 120)
-        .attr('height', 40)
-        .attr('fill', 'lightgrey')
-        .attr('rx', 15)
-        .attr('ry', 15)
-        .style("opacity", 0.8)
-        .style("visibility", "hidden");
 
-
-    var infoText = svgPC.append('text')
-        .attr('x', 840)
-        .attr('y', 25)
-        .attr("fill", "black")
-        .style('text-anchor', 'middle')
-        .style("visibility", "hidden")
-        .style('font-size', 12)
-        .text("name");
 
 
     // *HINT: to make a call for each bound data item, use .each!
@@ -256,6 +261,18 @@ function renderSP(){
             ycolumn = this.textContent;
         });
 
+    d3.select("#color-button").select(".ui-selectmenu-text")
+        .each(function(d, i){
+            d3.select(this)
+            color = this.textContent;
+        });
+
+    d3.select("#size-button").select(".ui-selectmenu-text")
+        .each(function(d, i){
+            d3.select(this)
+            size = this.textContent;
+        });
+
     yAxisLabelSP
         .text(ycolumn);
 
@@ -271,12 +288,70 @@ function renderSP(){
         .call(d3.axisBottom().scale(xSP[xcolumn]));
 
 
+    // Highlight Functions
+    var infoBoxSP = svgSP.append('rect')
+        .attr('x', 600)
+        .attr('width', 120)
+        .attr('height', 40)
+        .attr('fill', 'lightgrey')
+        .attr('rx', 15)
+        .attr('ry', 15)
+        .style("opacity", 0.8)
+        .style("visibility", "hidden");
+
+
+
+    var infoTextSP = svgSP.append('text')
+        .attr('x', 660)
+        .attr('y', 25)
+        .attr("fill", "black")
+        .style('text-anchor', 'middle')
+        .style("visibility", "hidden")
+        .style('font-size', 12)
+        .text("name");
+
+    var highlightSP = function (d){
+        var nameColumn = values.columns[0];
+        var selected_item = d[nameColumn];
+
+        infoTextSP.text(selected_item);
+        infoTextSP.style('visibility', 'visible')
+        infoBoxSP.style('visibility', 'visible');
+
+        d3.select(this)
+            .transition().duration(200)
+            .style('fill', 'red')
+            .style('opacity', 1.0);
+    };
+
+    var unhighlightSP = function(d){
+        infoBoxSP.style('visibility', 'hidden');
+        infoTextSP.style('visibility', 'hidden');
+
+        d3.select(this)
+            .transition().duration(200)
+            .style('fill', d => cScale(cValue(d)))
+            .style('opacity', 0.6);
+    }
 
     // TODO: render dots
+
+
     var xValue = d => d[xcolumn];
     var yValue = d => d[ycolumn];
+    var cValue = d => d[color];
+    var sValue = d => d[size];
+
     var xScale = xSP[xcolumn];
     var yScale = y[ycolumn];
+    var sScale = d3.scaleLinear()
+        .domain(d3.extent(values, function(d) { return +d[size]; }))
+        .range([2, 15]);
+    var cScale = d3.scaleLinear()
+        .domain(d3.extent(values, function(d) { return +d[color]; }))
+        .range(['green', 'magenta']);
+
+
 
     var circles = svgSP.selectAll('circle').data(values);
 
@@ -285,17 +360,19 @@ function renderSP(){
          .enter().append('circle')
             .attr('cy', d => yScale(yValue(d)))
             .attr('cx', d => xScale(xValue(d)))
-            .attr('r', 10)
-            .attr('fill', 'red')
-            .attr('opacity', 0.4);
+            .attr('r', d => sScale(sValue(d)))
+            .attr('fill', d => cScale(cValue(d)))
+            .attr('stroke', 'black')
+            .attr('opacity', 0.6)
+            .on("mouseover", highlightSP)
+            .on('mouseout', unhighlightSP);
 
     circles.transition()
         .duration(500)
         .attr('cy', d => yScale(yValue(d)))
         .attr('cx', d => xScale(xValue(d)))
-        .attr('r', 10)
-        .attr('fill', 'red')
-        .attr('opacity', 0.4);
+        .attr('r', d => sScale(sValue(d)))
+        .attr('fill', d => cScale(cValue(d)));
 
 
 }
