@@ -16,6 +16,8 @@ var svgPC, svgSP;
 var values = [];
 var y = {};
 var xSP = {};
+var ycolumn;
+var xcolumn;
 
 function init() {
     // define size of plots
@@ -54,6 +56,10 @@ function init() {
                 // TODO: parse reader.result data and call initVis with the parsed data!
                 values = d3.csvParse(loadedData);
                 console.log(values);
+
+                ycolumn = values.columns[1];
+                xcolumn = values.columns[3];
+
                 initVis(values);
             };
             reader.readAsBinaryString(fileInput.files[0]);
@@ -238,26 +244,58 @@ function renderSP(){
 
     // TODO: get domain names from menu and label x- and y-axis
 
+    d3.select("#scatterX-button").select(".ui-selectmenu-text")
+        .each(function(d, i){
+            d3.select(this)
+            xcolumn = this.textContent;
+        });
+
+    d3.select("#scatterY-button").select(".ui-selectmenu-text")
+        .each(function(d, i){
+            d3.select(this)
+            ycolumn = this.textContent;
+        });
+
+    yAxisLabelSP
+        .text(ycolumn);
+
+    xAxisLabelSP
+        .text(xcolumn);
+
+
     // TODO: re-render axes
+    yAxisSP
+        .call(d3.axisLeft().scale(y[ycolumn]));
+
+    xAxisSP
+        .call(d3.axisBottom().scale(xSP[xcolumn]));
+
+
 
     // TODO: render dots
-    var ycolumn = values.columns[1];
-    var xcolumn = values.columns[3];
-    var xname = dimensions[2];
-    var yname = dimensions[0];
     var xValue = d => d[xcolumn];
     var yValue = d => d[ycolumn];
-    var xScale = xSP[xname];
-    var yScale = y[yname];
+    var xScale = xSP[xcolumn];
+    var yScale = y[ycolumn];
 
-    svgSP.selectAll('circle').data(values)
-        .enter().append('circle')
+    var circles = svgSP.selectAll('circle').data(values);
+
+    circles.exit().remove();
+    circles
+         .enter().append('circle')
             .attr('cy', d => yScale(yValue(d)))
             .attr('cx', d => xScale(xValue(d)))
             .attr('r', 10)
             .attr('fill', 'red')
             .attr('opacity', 0.4);
 
+    circles.transition()
+        .duration(500)
+        .attr('cy', d => yScale(yValue(d)))
+        .attr('cx', d => xScale(xValue(d)))
+        .attr('r', 10)
+        .attr('fill', 'red')
+        .attr('opacity', 0.4);
 
 
 }
