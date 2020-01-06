@@ -308,34 +308,6 @@ function renderSP(){
         .style('font-size', 12)
         .text("name");
 
-    //funciton to highlight the hovered item in SP
-    var highlightSP = function (d){
-        var nameColumn = values.columns[0];
-        var selected_item = d[nameColumn];
-
-        infoTextSP.text(selected_item);
-        infoTextSP.style('visibility', 'visible')
-        infoBoxSP.style('visibility', 'visible');
-
-        d3.select(this)
-            .transition().duration(200)
-            .style('fill', 'red')
-            .style('opacity', 1.0);
-    };
-
-    //function to remove the highlight in SP
-    var unhighlightSP = function(d){
-        infoBoxSP.style('visibility', 'hidden');
-        infoTextSP.style('visibility', 'hidden');
-
-        d3.select(this)
-            .transition().duration(200)
-            .style('fill', d => cScale(cValue(d)))
-            .style('opacity', 0.6);
-    }
-
-    // TODO: render dots
-
     //values of currently selected options
     var xValue = d => d[xcolumn];
     var yValue = d => d[ycolumn];
@@ -352,6 +324,32 @@ function renderSP(){
         .domain(d3.extent(values, function(d) { return +d[color]; }))
         .range(['green', 'magenta']);
 
+
+    //funciton to highlight the hovered item in SP
+    var highlightSP = function (d){
+        var nameColumn = values.columns[0];
+        var selected_item = d[nameColumn];
+
+        infoTextSP.text(selected_item);
+        infoTextSP.style('visibility', 'visible')
+        infoBoxSP.style('visibility', 'visible');
+
+        d3.select(this)
+            .transition().duration(200)
+            .style('opacity', 1.0);
+    };
+
+    //function to remove the highlight in SP
+    var unhighlightSP = function(d){
+        infoBoxSP.style('visibility', 'hidden');
+        infoTextSP.style('visibility', 'hidden');
+
+        d3.select(this)
+            .transition().duration(200)
+            .style('opacity', 0.7);
+    }
+
+    // TODO: render dots
     //create a circle for each item in values
     var circles = svgSP.selectAll('circle').data(values);
 
@@ -363,7 +361,7 @@ function renderSP(){
             .attr('r', d => sScale(sValue(d)))
             .attr('fill', d => cScale(cValue(d)))
             .attr('stroke', 'black')
-            .attr('opacity', 0.6)
+            .attr('opacity', 0.7)
             .on("mouseover", highlightSP)
             .on('mouseout', unhighlightSP);
 
