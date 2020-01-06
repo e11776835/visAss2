@@ -87,27 +87,7 @@ function initVis(_data){
 
     }
 
-    //box for the lable in PC Plot
-    var infoBox = svgPC.append('rect')
-        .attr('x', 780)
-        .attr('width', 120)
-        .attr('height', 40)
-        .attr('fill', 'lightgrey')
-        .attr('rx', 15)
-        .attr('ry', 15)
-        .style("opacity", 0.8)
-        .style("visibility", "hidden");
 
-
-    //lable Text for PC Plot
-    var infoText = svgPC.append('text')
-        .attr('x', 840)
-        .attr('y', 25)
-        .attr("fill", "black")
-        .style('text-anchor', 'middle')
-        .style("visibility", "hidden")
-        .style('font-size', 12)
-        .text("name");
 
     // TODO: render parallel coordinates polylines
 
@@ -182,6 +162,50 @@ function initVis(_data){
                 .attr("y", margin.top / 2)
                 .text(d => dimensions[i]); // TODO: get domain name from data
         });
+
+
+    //box for the lable in PC Plot
+    var infoBox = svgPC.append('rect')
+        .attr('x', 780)
+        .attr('width', 120)
+        .attr('height', 40)
+        .attr('fill', 'lightgrey')
+        .attr('rx', 15)
+        .attr('ry', 15)
+        .style("opacity", 0.8)
+        .style("visibility", "hidden");
+
+
+
+    //lable Text for PC Plot
+    var infoText = svgPC.append('text')
+        .attr('x', 840)
+        .attr('y', 25)
+        .attr("fill", "black")
+        .style('text-anchor', 'middle')
+        .style("visibility", "hidden")
+        .style('font-size', 12)
+        .text("name");
+
+
+    var sPC = document.querySelector('#pc').querySelector('svg');
+    var ptPC = sPC.createSVGPoint();
+
+    function cursorPoint(evt){
+        ptPC.x = evt.clientX;
+        ptPC.y = evt.clientY;
+        return ptPC.matrixTransform(sPC.getScreenCTM().inverse());
+    }
+
+    sPC.addEventListener('mousemove', function(evt) {
+        var loc = cursorPoint(evt);
+        infoBox
+            .attr('x', loc.x)
+            .attr('y', loc.y);
+        infoText
+            .attr('x', loc.x + 60)
+            .attr('y', loc.y + 25);
+    },false);
 
 
     // *HINT: to make a call for each bound data item, use .each!
@@ -286,28 +310,6 @@ function renderSP(){
         .call(d3.axisBottom().scale(xSP[xcolumn]));
 
 
-    //box for the lable in SP
-    var infoBoxSP = svgSP.append('rect')
-        .attr('x', 600)
-        .attr('width', 120)
-        .attr('height', 40)
-        .attr('fill', 'lightgrey')
-        .attr('rx', 15)
-        .attr('ry', 15)
-        .style("opacity", 0.8)
-        .style("visibility", "hidden");
-
-
-    //lable text in SP
-    var infoTextSP = svgSP.append('text')
-        .attr('x', 660)
-        .attr('y', 25)
-        .attr("fill", "black")
-        .style('text-anchor', 'middle')
-        .style("visibility", "hidden")
-        .style('font-size', 12)
-        .text("name");
-
     //values of currently selected options
     var xValue = d => d[xcolumn];
     var yValue = d => d[ycolumn];
@@ -371,6 +373,47 @@ function renderSP(){
         .attr('cx', d => xScale(xValue(d)))
         .attr('r', d => sScale(sValue(d)))
         .attr('fill', d => cScale(cValue(d)));
+
+    //box for the lable in SP
+    var infoBoxSP = svgSP.append('rect')
+        .attr('x', 600)
+        .attr('width', 120)
+        .attr('height', 40)
+        .attr('fill', 'lightgrey')
+        .attr('rx', 15)
+        .attr('ry', 15)
+        .style("opacity", 0.8)
+        .style("visibility", "hidden");
+
+
+    //lable text in SP
+    var infoTextSP = svgSP.append('text')
+        .attr('x', 660)
+        .attr('y', 25)
+        .attr("fill", "black")
+        .style('text-anchor', 'middle')
+        .style("visibility", "hidden")
+        .style('font-size', 12)
+        .text("name");
+
+    var sSP = document.querySelector('#sp').querySelector('svg');
+    var ptSP = sSP.createSVGPoint();
+
+    function cursorPoint(evt){
+        ptSP.x = evt.clientX;
+        ptSP.y = evt.clientY;
+        return ptSP.matrixTransform(sSP.getScreenCTM().inverse());
+    }
+
+    sSP.addEventListener('mousemove', function(evt) {
+        var loc = cursorPoint(evt);
+        infoBoxSP
+            .attr('x', loc.x)
+            .attr('y', loc.y);
+        infoTextSP
+            .attr('x', loc.x + 60)
+            .attr('y', loc.y + 25);
+    },false);
 }
 
 // init scatterplot select menu
