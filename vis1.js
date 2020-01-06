@@ -12,10 +12,13 @@ var channels = ["scatterX", "scatterY", "color", "size"];
 var margin, widthPC, widthSP, height;
 // svg containers
 var svgPC, svgSP;
-
+// the loaded data
 var values = [];
+// containers for axis
 var y = {};
 var xSP = {};
+
+//the selected options in SP
 var ycolumn;
 var xcolumn;
 var color;
@@ -50,17 +53,11 @@ function init() {
 
             var reader = new FileReader();
             reader.onloadend = function () {
-                console.log("data loaded: ");
-                //console.log(reader.result);
-                var loadedData = reader.result;
 
+                var loadedData = reader.result;
 
                 // TODO: parse reader.result data and call initVis with the parsed data!
                 values = d3.csvParse(loadedData);
-                console.log(values);
-
-                ycolumn = values.columns[1];
-                xcolumn = values.columns[1];
 
                 initVis(values);
             };
@@ -74,7 +71,6 @@ function initVis(_data){
     // TODO: parse dimensions (i.e., attributes) from input file
     dimensions = Object.keys(_data[0]);
     dimensions.splice(0,1);
-    console.log(dimensions);
 
     // x scaling for parallel coordinates
     var xPC = d3.scalePoint()
@@ -84,13 +80,14 @@ function initVis(_data){
     // y scalings
     // TODO: set y domain for each dimension
     for(i in dimensions){
-        var name = dimensions[i];
-        y[name] = d3.scaleLinear()
-            .domain(d3.extent(_data, function(d) { return +d[name]; }))
+        var dimName = dimensions[i];
+        y[dimName] = d3.scaleLinear()
+            .domain(d3.extent(_data, function(d) { return +d[dimName]; }))
             .range([height - margin.bottom - margin.top, margin.top]);
 
     }
 
+    //box for the lable in PC Plot
     var infoBox = svgPC.append('rect')
         .attr('x', 780)
         .attr('width', 120)
@@ -102,7 +99,7 @@ function initVis(_data){
         .style("visibility", "hidden");
 
 
-
+    //lable Text for PC Plot
     var infoText = svgPC.append('text')
         .attr('x', 840)
         .attr('y', 25)
@@ -114,7 +111,8 @@ function initVis(_data){
 
     // TODO: render parallel coordinates polylines
 
-       var highlight = function (d){
+    //function to highlight hovered item
+    var highlight = function (d){
         var nameColumn = values.columns[0];
         var selected_item = d[nameColumn];
 
@@ -134,6 +132,7 @@ function initVis(_data){
             .style('opacity', 1.0);
     };
 
+    //function to remove the highlight
     var unhighlight = function(d){
         infoBox.style('visibility', 'hidden');
         infoText.style('visibility', 'hidden');
@@ -143,6 +142,7 @@ function initVis(_data){
             .style('opacity', 0.5);
     }
 
+    //function to crate a path across all dimensions
     function path(d){
         return d3.line()(dimensions.map(function(p) { return [xPC(p), y[p](d[p])];}));
     }
@@ -184,8 +184,6 @@ function initVis(_data){
         });
 
 
-
-
     // *HINT: to make a call for each bound data item, use .each!
     // example: http://bl.ocks.org/milroc/4254604
 
@@ -217,12 +215,12 @@ function initVis(_data){
     xAxisSP = svgSP.append("g")
         .attr("class", "axis")
         .attr("transform", "translate(0, " + (height - margin.bottom - margin.top) + ")")
-        .call(d3.axisBottom().scale(xSP[_data.columns[3]]));
+        .call(d3.axisBottom().scale(xSP[_data.columns[1]]));
 
     xAxisLabelSP = xAxisSP.append("text")
         .style("text-anchor", "middle")
         .attr("x", widthSP - margin.right)
-        .text(_data.columns[3]);
+        .text(_data.columns[1]);
 
     // init menu for the four visual channels
     channels.forEach(function(c){
@@ -288,7 +286,7 @@ function renderSP(){
         .call(d3.axisBottom().scale(xSP[xcolumn]));
 
 
-    // Highlight Functions
+    //box for the lable in SP
     var infoBoxSP = svgSP.append('rect')
         .attr('x', 600)
         .attr('width', 120)
@@ -300,7 +298,7 @@ function renderSP(){
         .style("visibility", "hidden");
 
 
-
+    //lable text in SP
     var infoTextSP = svgSP.append('text')
         .attr('x', 660)
         .attr('y', 25)
@@ -310,6 +308,7 @@ function renderSP(){
         .style('font-size', 12)
         .text("name");
 
+    //funciton to highlight the hovered item in SP
     var highlightSP = function (d){
         var nameColumn = values.columns[0];
         var selected_item = d[nameColumn];
@@ -324,6 +323,7 @@ function renderSP(){
             .style('opacity', 1.0);
     };
 
+    //function to remove the highlight in SP
     var unhighlightSP = function(d){
         infoBoxSP.style('visibility', 'hidden');
         infoTextSP.style('visibility', 'hidden');
@@ -336,12 +336,13 @@ function renderSP(){
 
     // TODO: render dots
 
-
+    //values of currently selected options
     var xValue = d => d[xcolumn];
     var yValue = d => d[ycolumn];
     var cValue = d => d[color];
     var sValue = d => d[size];
 
+    //Scales for currently selected options
     var xScale = xSP[xcolumn];
     var yScale = y[ycolumn];
     var sScale = d3.scaleLinear()
@@ -351,8 +352,7 @@ function renderSP(){
         .domain(d3.extent(values, function(d) { return +d[color]; }))
         .range(['green', 'magenta']);
 
-
-
+    //create a circle for each item in values
     var circles = svgSP.selectAll('circle').data(values);
 
     circles.exit().remove();
@@ -373,8 +373,6 @@ function renderSP(){
         .attr('cx', d => xScale(xValue(d)))
         .attr('r', d => sScale(sValue(d)))
         .attr('fill', d => cScale(cValue(d)));
-
-
 }
 
 // init scatterplot select menu
